@@ -61,7 +61,7 @@ userSchema.statics.insertUser = function( name, email, password, callback ) {
 	})
 }
 
-userSchema.statics.findUser = function( email, password, callback ) {
+userSchema.statics.validateUser = function( email, password, callback ) {
 
 	UserModel.findOne({
 		email: email,
@@ -74,6 +74,17 @@ userSchema.statics.findUserByEmail = function( email, callback ) {
 	UserModel.findOne({
 		email: email
 	}, callback )
+}
+
+userSchema.statics.resetPassword = function( email, password, callback ) {
+
+	UserModel.updateOne({
+		email: email
+	},{
+		$set:{
+			password: encryptPassword(password)
+		}
+	}, callback)
 }
 
 let UserModel = mongoose.model("User", userSchema);
@@ -105,7 +116,7 @@ authTokenSchema.statics.generateToken = function( user_id, callback ) {
 
 	let token = new AuthTokenModel;
 	token.user_id = user_id;
-	token.token = crypto.randomBytes(64).toString('hex');
+	token.token = crypto.randomBytes(16).toString('hex');
 	token.save( function( err, token_data ) {
 
 	    if ( err ) {

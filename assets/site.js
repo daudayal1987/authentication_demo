@@ -101,7 +101,7 @@
   $("#forgot-password-form").submit(function() {
   	remove_loading($(this));
 		
-		if(options['useAJAX'] == true)
+		/*if(options['useAJAX'] == true)
 		{
 			// Dummy AJAX request (Replace this with your AJAX code)
 		  // If you don't want to use AJAX, remove this
@@ -110,7 +110,40 @@
 		  // Cancel the normal submission.
 		  // If you don't want to use AJAX, remove this
   	  return false;
-		}
+		}*/
+  });
+
+
+  // Forgot Password Form
+  //----------------------------------------------
+  // Validation
+  $("#reset-password-form").validate({
+    rules: {
+      rp_email: "required",
+      rp_password: "required",
+      rp_password_confirm: {
+        required: true,
+        minlength: 5,
+        equalTo: "#reset-password-form [name=rp_password]"
+      },
+    },
+    errorClass: "form-invalid"
+  });
+  
+  // Form Submission
+  $("#reset-password-form").submit(function() {
+    remove_loading($(this));
+    
+    /*if(options['useAJAX'] == true)
+    {
+      // Dummy AJAX request (Replace this with your AJAX code)
+      // If you don't want to use AJAX, remove this
+      dummy_submit_form($(this));
+    
+      // Cancel the normal submission.
+      // If you don't want to use AJAX, remove this
+      return false;
+    }*/
   });
 
 	// Loading
