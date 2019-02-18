@@ -1,6 +1,9 @@
 # authentication_demo
 Cookie based authentication in NodeJS (Register, Login, Logout, Forgot Password &amp; Reset Password)
 
+# Environment
+NodeJS
+
 # How to Run
 1) Copy repository
 2) Configure `config.json`
