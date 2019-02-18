@@ -1,0 +1,11 @@
+{
+	"host": "localhost",
+	"port": 8082,
+
+	"db_host": "localhost",
+	"db_port": 27017,
+	"db_name": "auth_demo",
+	"db_user": false,
+	"db_pass": false,
+	"db_auth": false
+}
