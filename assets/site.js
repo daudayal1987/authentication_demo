@@ -12,6 +12,34 @@
 	  'useAJAX': true,
   };
 
+  // Profile Form
+	//----------------------------------------------
+	// Validation
+	$("#profile-form").validate({
+		rules: {
+			profile_fullname: "required",
+			profile_gender: "required",
+			profile_dob: "required"
+		},
+		errorClass: "form-invalid"
+	});
+	
+	  // Form Submission
+	$("#profile-form").submit(function() {
+		remove_loading($(this));
+		  
+		  /*if(options['useAJAX'] == true)
+		  {
+			  // Dummy AJAX request (Replace this with your AJAX code)
+			// If you don't want to use AJAX, remove this
+		  dummy_submit_form($(this));
+		  
+			// Cancel the normal submission.
+			// If you don't want to use AJAX, remove this
+		  return false;
+		  }*/
+	});
+
 	// Login Form
 	//----------------------------------------------
 	// Validation

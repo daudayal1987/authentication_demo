@@ -36,6 +36,10 @@ let encryptPassword = function( password ) {
 
 let userSchema = mongoose.Schema({
 	name: String,
+	gender: String,
+	dob: {
+		type: Date
+	},
 	email: String,
 	password: String,
 	created_on: {

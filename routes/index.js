@@ -1,56 +1,41 @@
 let express 		= require('express'),
+	moment			= require('moment'),
 	async 			= require('async');
 
 let config 			= require('../config.json');
+
+import * as es6Helper from '../helpers/es6.js';
 
 let router 			= express.Router();
 
 let db = require('../db.js');
 
-router.get('/', function(req, res){
+router
+	.get('/', async function(req, res){
+		try{
 
-	//res.send( req.session );return;
+			let user_id = await es6Helper.validateLogin(req);
 
-	async.waterfall([
+			res.render('home',{
+				current_page: 'home',
+				user_id: user_id,
 
-			function( next ) {
+				layout: 'user'
+			})
 
-				const session = req.session;
-				if( !session.hasOwnProperty('token') || 
-					!session.hasOwnProperty('email') ||
-					!session.hasOwnProperty('name') ){
+		}catch(err){
 
-					next( {code: 'NOT_LOGIN'} )
-				} else {
-
-					next(null, session)
-				}
-			}, function( session_data, next ) {
-
-				db.UserModel.findUserByEmail( session_data.email, function( err, user_data ) {
-
-					next( err, session_data, user_data );
-				} )
-			}, function( session_data, user_data, next ) {
-
-				db.AuthTokenModel.verifyToken( user_data._id, session_data.token, function( err ) {
-
-					next( err, session_data );
-				})
-			}
-		], function( err, result ) {
-
-			if( err && err.code == 'NOT_LOGIN' ) {
+			if( err.code == 'NOT_LOGIN' ){
 
 				res.redirect('/login');
 			} else {
 
-				res.render('home',{
-					user_name: result.name
+				res.render('error', {
+					err: err
 				})
 			}
-		})
-});
+		}
+	});
 
 router
 	.get('/logout', function( req, res ) {
@@ -484,5 +469,101 @@ router
 
 		//res.send(req.body)
 	});
+
+router
+	.get('/profile', async function( req, res ){
+
+		try{
+
+			let user_id = await es6Helper.validateLogin(req);
+
+			let user_data = await es6Helper.fetchUserData(user_id);
+
+			res.render('profile',{
+				layout: 'user',
+
+				current_page: 'profile',
+				user_data
+			})
+		}catch(err){
+
+			if( err.code == 'NOT_LOGIN' ){
+
+				res.redirect('/login');
+			} else {
+	
+				res.render('error', {
+					err: err
+				})
+			}
+		}
+	})
+	.post('/profile', async function(req, res){
+
+		try{
+
+			let user_id = await es6Helper.validateLogin(req);
+
+			let full_name = req.body.profile_fullname,
+				gender = req.body.profile_gender,
+				dob = req.body.profile_dob;
+
+			let error = [];
+
+			if(!full_name || !gender || !dob){
+				
+				error.push("Required values are missing");
+			}
+
+			if(['male','female'].indexOf(gender)==-1){
+
+				error.push("Invalid value for gender");
+			}
+
+			if( !moment(dob, "MMM Do, YYYY").isValid() ){
+
+				error.push("Invalid date of birth");
+			}
+
+			// console.log(moment(dob, "MMM Do, YYYY"));
+			// console.log(moment.utc(dob, "MMM Do, YYYY"));
+			// console.log(moment(dob, "MMM Do, YYYY").isValid());
+
+			if(error.length){
+
+				res.render('profile',{
+					layout: 'user',
+
+					current_page: 'profile',
+
+					error
+				});
+				return;
+			}
+
+			await es6Helper.updateUserProfile(user_id, full_name, gender, moment(dob, "MMM Do, YYYY"));
+
+			let user_data = await es6Helper.fetchUserData(user_id);
+
+			res.render('profile',{
+
+				layout: 'user',
+				current_page: 'profile',
+				success: "Profile updated successfully",
+				user_data: user_data
+			});
+		}catch(err){
+
+			if( err.code == 'NOT_LOGIN' ){
+
+				res.redirect('/login');
+			} else {
+	
+				res.render('error', {
+					err: err
+				})
+			}
+		}
+	})
 
 module.exports = router;
